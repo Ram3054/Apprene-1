@@ -1,0 +1,11 @@
+{
+    "build": "both",
+    "url": "https://www.millioncolor.co/",
+    "rate_url": "https://millioncolor.co",
+    "appname": "millioncolor",
+    "package_name_andorid": "com.millioncolor",
+    "packge_name_ios": "com.millioncolor",
+    "app_apple_id": 2193813192,
+    "build_version_android": "1.0.0",
+    "build_version_ios": "1.0.0"
+}
