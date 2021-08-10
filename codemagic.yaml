@@ -1,39 +1,25 @@
 workflows:
-  react-native:
-    name: React Native App new
+  ios-project-debug: # workflow ID
+    name: iOS debug # workflow name
     environment:
-      vars:
-        XCODE_WORKSPACE: 'Apprene'
-        XCODE_SCHEME: 'Apprene'
-
-      node: latest
       xcode: latest
       cocoapods: default
-
+      vars:
+        XCODE_PROJECT: 'Apprene' # <-- Put the name of your project here.
+        XCODE_SCHEME: 'Apprene' # <-- Put the name of your scheme here.
     scripts:
-      - cd android && chmod +x gradlew
-      - npm install
-      - echo "sdk.dir=$HOME/programs/android-sdk-macosx" > "$FCI_BUILD_DIR/android/local.properties"
-      - echo $(jq .'build' build_data/data.json)
-      - |
-        if [[ $(jq -r .'build' build_data/data.json) == "android" ]] || [[ $(jq -r ."build" build_data/data.json) == "both" ]] ; then
-        echo "block executed";
-        # build Android;
-        cd android;
-        ./gradlew assembleRelease;
-        fi
-
-      - |
-        if [[ $(jq -r ."build" build_data/data.json) == "ios" ]] || [[ $(jq -r ."build" build_data/data.json) == "both" ]] ; then
-        # build iOS
-        cd ios
-        pod install
-        ls
-        xcodebuild -scheme "$XCODE_SCHEME" -workspace "$XCODE_WORKSPACE.xcworkspace" -sdk iphonesimulator
-        xcodebuild build -workspace "$XCODE_WORKSPACE.xcworkspace" -scheme "$XCODE_SCHEME"  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 
-        fi
-
+      - name: Run tests
+        script: |
+          xcodebuild \
+          -project "$XCODE_PROJECT" \
+          -scheme "$XCODE_SCHEME" \
+          -sdk iphonesimulator \
+          -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.1' \
+          clean build test CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - name: Build debug app
+        script: |
+          xcodebuild build -project "$XCODE_PROJECT" \
+          -scheme "$XCODE_SCHEME" \
+          CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
     artifacts:
-      - android/app/build/outputs/**/*.apk
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYN
